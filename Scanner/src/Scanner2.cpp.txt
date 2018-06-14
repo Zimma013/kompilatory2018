@@ -1,0 +1,453 @@
+//============================================================================
+// Name        : Scanner.cpp
+// Author      : Mikh
+// Version     : 0.0
+// Copyright   : NO_ONE_SHALL_USE_THIS ver. 3.33
+// Description : Skaner koloruj¹cy sk³adnie. Na podstawie listy tokenów ma kolorowac
+//				 s³owa - przetworzyc nowy tokenFile do kodu html.
+//============================================================================
+
+
+#include <iostream>
+#include <fstream>
+#include <list>
+#include <regex>
+#include <vector>
+
+using namespace std;
+
+struct tokenDescr {
+	string code;
+	string description;
+};
+
+struct tokenVar {
+	string code;
+	string value;
+};
+
+//z whitespace: " ", "\t", "\n", "\r"
+list<tokenDescr> initializeList() {
+	tokenDescr a;
+	list<tokenDescr> newList;
+
+	/* LEGENDA
+	 * a - litera (alpha)
+	 * d - cyfra (digit)
+	 * {...} - 0 lub wiêcej powtórzeñ
+	 * [...] - 0 lub 1 powtórzenie
+	 * | - alternatywa
+	 */
+
+	//SEKCJA - CUSTOM
+	a = tokenDescr {"t_plus", "+"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_minus", "-"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_razy", "*"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_dziel","/"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_dziel_calk","div"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_delimiter",";"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_ident","a{a|d|_}"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_ident_priv","_{a|d|_}"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_liczba","d{d}"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_liczba_dz","d{d}.d{d}"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_l_nawO","("};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_p_nawO",")"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_l_nawK","["};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_p_nawK","]"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_l_nawKL","{"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_p_nawKL","}"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_space"," "};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_tab","\t"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_linefeed","\n"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_carriagereturn","\r"};
+	newList.push_back(a);
+
+
+	//SEKCJA - S£OWA KLUCZOWE
+	a = tokenDescr {"t_alignas","alignas"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_alignof","alignof"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_asm","asm"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_auto","auto"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_bool","bool"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_break","break"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_case","case"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_catch","catch"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_char","char"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_char16_t","char16_t"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_char32_t","char32_t"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_class","class"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_const","const"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_constexpr","constexpr"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_const_cast", "const_cast"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_continue","continue"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_default","default"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_define","define"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_delete","delete"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_do","do"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_double","double"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_dynamic_cast","dynamic_cast"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_else","else"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_enum","enum"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_explicit","explicit"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_extern","extern"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_false","false"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_final","final"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_float","float"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_for","for"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_friend","friend"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_goto","goto"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_if","if"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_inline","inline"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_int","int"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_long","long"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_mutable","mutable"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_namespace","namespace"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_new","new"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_nullptr","nullptr"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_operator","operator"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_override","override"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_private","private"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_protected","protected"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_public","public"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_register","register"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_reinterpret_cast","reinterpret_cast"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_return","return"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_short","short"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_signed","signed"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_sizeof","sizeof"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_static","static"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_static_assert","static_assert"};
+	newList.push_back(a);
+		
+	a = tokenDescr {"t_static_cast","static_cast"};
+	newList.push_back(a);		
+	
+	a = tokenDescr {"t_struct","struct"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_switch","switch"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_template","template"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_this","this"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_throw","throw"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_true","true"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_try","try"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_typedef","typedef"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_typeid","typeid"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_typename","typename"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_union","union"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_unsigned","unsigned"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_using","using"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_virtual","virtual"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_void","void"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_volatile","volatile"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_wchar_t","wchar_t"};
+	newList.push_back(a);
+	
+	a = tokenDescr {"t_while","while"};
+	newList.push_back(a);
+
+	a = tokenDescr {"t_error","error"};
+	newList.push_back(a);
+
+	return newList;
+}
+
+tokenDescr initializeToken(char ch, list<tokenDescr> &tokenList){
+	tokenDescr tmp;
+	for(list<tokenDescr>::iterator it = tokenList.begin(); it != tokenList.end(); it++){
+		tmp = *it;
+		if(tmp.description[0] == 'a') {
+			if(((ch>=48)&&(ch<=57))||((ch>=65)&&(ch<=90))||((ch>=97)&&(ch<=122))){
+				return tmp;
+			}
+		} else if(tmp.description[0] == 'd'){
+			if((ch>=48)&&(ch<=57)){
+				return tmp;
+			} else {
+				tmp.code = "t_ident";
+				tmp.description = "a{a|d|_}";
+			}
+		}
+	}
+
+	return tmp;
+}
+
+void completeIdentToken(tokenVar &token, ifstream &source){
+	char ch;
+	source.get(ch);
+	while(((ch>=48)&&(ch<=57))||((ch>=65)&&(ch<=90))||((ch>=97)&&(ch<=122))||(ch==95)){
+		token.value.push_back(ch);
+		source.get(ch);
+	}
+}
+
+void completeLiczbaToken(tokenVar &token, ifstream &source){
+	char ch;
+	source.get(ch);
+	while(((ch>=48)&&(ch<=57))||(ch==46)) {
+		token.value.push_back(ch);
+		source.get(ch);
+	}
+}
+
+void completeLiczbaDzToken(tokenVar &token, ifstream &source){
+	char ch;
+	source.get(ch);
+	while((ch>=48)&&(ch<=57)) {
+		token.value.push_back(ch);
+		source.get(ch);
+	}
+}
+
+void changeIfKeyword(tokenVar &token, list<tokenDescr> &tokenList){
+	tokenDescr tmp;
+	cout<<"3.0-begin"<<endl;
+	list<tokenDescr>::iterator it = tokenList.end();
+	//cout<<it->description<<endl;
+	for(it--; it != tokenList.begin(); it--){
+		tmp = *it;
+		cout<<"3.1:"<<tmp.description<<endl;
+		if(tmp.description == token.value){
+			token.code = tmp.code;
+			return;
+		}
+	}
+}
+
+void completeToken(char ch, tokenVar &token, ifstream &source){
+	//cout<<"2.1:"<<source.eof()<<endl;
+	if(!source.eof()){
+		//cout<<"2.2:"<<token.code<<endl;
+		if((token.code == "t_ident")||(token.code == "t_ident_priv")){
+			if(((ch>=48)&&(ch<=57))||((ch>=65)&&(ch<=90))||((ch>=97)&&(ch<=122))||(ch==95)){
+				completeIdentToken(token, source);
+			}
+		} else if (token.code == "t_liczba") {
+			if(((ch>=48)&&(ch<=57))||(ch==46)){
+				completeLiczbaToken(token, source);
+			}
+		} else if (token.code == "t_liczba_dz"){
+			if((ch>=48)&&(ch<=57)){
+				completeLiczbaDzToken(token, source);
+			}
+		}
+	}
+}
+
+void scan(ifstream &source, list<tokenDescr> &tokenList){
+	//analizuj to co wchodzi - sprawdz czy ci¹g co wchodzi pasuje do tokenu
+	char ch ;
+	source.get(ch);
+	tokenDescr descr = initializeToken(ch,tokenList);
+	tokenVar var;
+
+	var.code.clear();
+	var.code = descr.code;
+	var.value.clear();
+	var.value = ch;
+		//cout<<"1E:"<<ch<<endl;
+	completeToken(ch, var, source);
+		//cout<<"2E:"<<var.code<<":"<<var.value<<endl;
+	changeIfKeyword(var, tokenList);
+		cout<<"3E:"<<var.code<<":"<<var.value<<endl;
+}
+
+int main() {
+	ifstream sourceFile;
+	ofstream tokenFile;
+	string path;
+
+	string buffer;
+
+	list<tokenDescr> tokenList;
+	tokenList = initializeList();
+
+	//cout << "Podaj scie¿kê do skanowanego pliku" << endl;
+	//cin >> path;
+
+	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!WA¯NE!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	//to jest to zmiany.
+	sourceFile.open("F:\\Eclipse-CPP\\workspace\\Scanner\\src\\testFile.txt");
+
+	scan(sourceFile, tokenList);
+		// weŸ pierwszy znak tokena i sprawdŸ co pasuje (liczba, ident symbol)
+		// i wewn¹trz scan() rób pêtle która bêdzie zbierac znaki
+		// póŸniej rozpoznaj czy ident jest s³owem kluczowym
+
+	sourceFile.close();
+	return 0;
+}
+
