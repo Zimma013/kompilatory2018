@@ -126,6 +126,12 @@ void Scanner::checkForKeywords(tokenVar &token) {
 	if (token.value=="break") {
 		token.code="BREAK_T";
 	}
+	if (token.value=="true") {
+		token.code="TRUE_T";
+	}
+	if (token.value=="false") {
+		token.code="FALSE_T";
+	}
 }
 
 void Scanner::scanIdentToken(tokenVar &token, ifstream &source) {
@@ -149,7 +155,7 @@ void Scanner::scanUnsignedIntToken(tokenVar &token, ifstream &source) {
 	while(((source.peek()>=48)&&(source.peek()<=57))) { // [0-9]
 		source.get(ch);
 		if(ch==46){ // '.'
-			token.code="UNSIGNED_NUMBER_T";
+			token.code="UNSIGNED_REAL_T";
 		}
 		token.value+=ch;
 	}
@@ -173,7 +179,7 @@ void Scanner::scanErrorToken(tokenVar &token, ifstream &source){
 		source.get(ch);
 		token.value+=ch;
 	}
-
+	throw "Scanner Exception: Invalid Code Found " + token.value;
 }
 
 tokenVar Scanner::scanToken(ifstream &source) {
@@ -234,7 +240,7 @@ tokenVar Scanner::scanToken(ifstream &source) {
 		t.code="PERIOD_T";
 		t.value+=ch;
 		if(source.peek()==46){
-			t.code="DOTDOT_t";
+			t.code="DOTDOT_T";
 			source.get(ch);
 			t.value+=ch;
 		}
