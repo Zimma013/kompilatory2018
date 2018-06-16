@@ -1,2 +1,256 @@
-do
-adaw165FF;
+
+
+/*
+
+void Parser::variable_declaration() {
+	tokenVar token = nextToken();
+	if (peek().code=="IDENTIFIER_T") {
+		token = nextToken();
+		if (peek().code=="COLON_T") {
+			type();
+			block_declarations();
+		}  else {
+			error_msg(token,"declaration block");
+		}
+	} else {
+		error_msg(token,"declaration block");
+	}
+}
+
+void Parser::type() {
+	tokenVar token = nextToken();
+	if (peek().code=="INTEGER_T") {
+		//token = nextToken();
+		if (peek().code=="SEMICOLON_T") {
+			;;
+		} else {
+			error_msg(token,"declaration block");
+		}
+	} else if (peek().code=="REAL_T") {
+		//token = nextToken();
+		if (peek().code=="SEMICOLON_T") {
+			;;
+		} else {
+			error_msg(token,"declaration block");
+		}
+	} else if (peek().code=="BOOLEAN_T") {
+		//token = nextToken();
+		if (peek().code=="SEMICOLON_T") {
+			;;
+		} else {
+			error_msg(token,"declaration block");
+		}
+	} else if (peek().code=="CHAR_T") {
+		//token = nextToken();
+		if (peek().code=="SEMICOLON_T") {
+			;;
+		} else {
+			error_msg(token,"declaration block");
+		}
+	} else if (peek().code=="ARRAY_T") {
+		array_declaration();
+	} else {
+		error_msg(token,"declaration block");
+	}
+}
+
+void Parser::array_declaration() {
+	tokenVar token = nextToken();
+	if (peek().code=="LEFT_SQUARE_T") {
+		token = nextToken();
+		if (peek().code=="UNSIGNED_INTEGER_T") {
+			token = nextToken();
+			if (peek().code=="DOTDOT_T") {
+				token = nextToken();
+				if(peek().code=="UNSIGNED_INTEGER_T") {
+					token = nextToken();
+					if(peek().code=="RIGHT_SQUARE_T") {
+						token = nextToken();
+						if (peek().code=="OF_T") {
+							type();
+						} else {
+							error_msg(token,"declaration block");
+						}
+					} else {
+						error_msg(token,"declaration block");
+					}
+				} else {
+					error_msg(token,"declaration block");
+				}
+			} else {
+				error_msg(token,"declaration block");
+			}
+		} else {
+			error_msg(token,"declaration block");
+		}
+	} else {
+		error_msg(token,"declaration block");
+	}
+}
+
+void Parser::program_heading() {
+	tokenVar token = nextToken();
+	if (peek().code=="PROGRAM_T") {
+		token = nextToken();
+		if (peek().code=="IDENTIFIER_T") {
+			token = nextToken();
+			if (peek().code=="SEMICOLON_T") {
+					;; //TODO: Parsing continues
+			} else {
+				error_msg(token,"program heading");
+			}
+		} else {
+			error_msg(token,"program heading");
+		}
+
+	} else {
+		error_msg(token,"program heading");
+	}
+
+}
+
+void Parser::identifier() {
+	tokenVar token = nextToken();
+	if (peek().code=="IDENTIFIER_T") {
+		;;
+	} else {
+		error_msg(token, "identifier" + peek().value);
+	}
+}
+
+void Parser::formal_parameter() {
+	tokenVar token;
+	identifier();
+	token = nextToken();
+	if(peek().code=="COLON_T") {
+		type();
+		token = nextToken();
+		if(peek().code=="SEMICOLON_T") {
+			formal_parameter();
+		} else if (peek().code=="RIGHT_PARENTHESIS_T") {
+			;;
+		} else {
+			error_msg(token, "parameter" + peek().value);
+		}
+	} else {
+		error_msg(token, "parameter" + peek().value);
+	}
+}
+
+void Parser::formal_parameter_list() {
+	tokenVar token = nextToken();
+	if (peek().code=="LEFT_PARENTHESIS_T") {
+		formal_parameter();
+		token = nextToken();
+		if(peek().code=="RIGHT_PARENTHESIS_T") {
+			;;
+		} else if (peek().code=="SEMICOLON_T") {
+			formal_parameter();
+		} else {
+			error_msg(token, "parameter" + peek().value);
+		}
+	}
+}
+
+void Parser::function_declaration() {
+	tokenVar token = nextToken();
+	if (peek().code=="IDENTIFIER_T") {
+		if (peek().code=="SEMICOLON_T") {
+			nextToken();
+			block();
+		} else if (peek().code=="LEFT_PARENTHESIS_T") {
+			formal_parameter_list();
+		} else {
+			error_msg(token, "function" + peek().value);
+		}
+		token = nextToken();
+		if (peek().code=="COLON_T") {
+			type();
+		} else {
+			error_msg(token, "function" + peek().value);
+		}
+		compound_statement();
+	}
+}
+
+void Parser::procedure_declaration() {
+	tokenVar token = nextToken();
+	if (peek().code=="IDENTIFIER_T") {
+		if (peek().code=="SEMICOLON_T") {
+			nextToken();
+			block();
+		} else if (peek().code=="LEFT_PARENTHESIS_T") {
+			formal_parameter_list();
+		} else {
+			error_msg(token, "procedure" + peek().value);
+		}
+		token = nextToken();
+		if(peek().code=="SEMICOLON_T") {
+			compound_statement();
+		}
+		token = nextToken();
+		if (peek().code=="SEMICOLON_T") {
+			;;
+		} else {
+			error_msg(token, "procedure" + peek().value);
+		}
+	}
+}
+
+void Parser::block_declarations() {
+	if(peek().code=="VAR_T") {
+		nextToken();
+		variable_declaration();
+	} else if (peek().code=="PROCEDURE_T") {
+		nextToken();
+		procedure_declaration();
+	} else if (peek().code=="FUNCTION_T") {
+		nextToken();
+		function_declaration();
+	} else if (peek().code=="BEGIN_T") {
+		;;
+	}else {
+		error_msg(nextToken(), "declaration block");
+	}
+}
+
+void Parser::block(){ //TODO: BLOCK
+	block_declarations();
+	compound_statement();
+}
+
+void Parser::parse() {
+	tokenVar token;
+	program_heading();
+	block();
+	token = nextToken();
+	if(peek().code=="DOT_T") {
+		;;
+	} else {
+		error_msg(token,"end of program");
+	}
+}
+
+Parser::Parser(){
+	Scanner s;
+	std::string path = "F:\\Eclipse-CPP\\workspace\\Scanner\\src\\samplePasacal.pas";
+	tokenList=s.scan(path);
+}
+
+int main() {
+	//Scanner s;
+	std::list<tokenVar> tokenList;
+	tokenVar t1, t2;
+
+	//tokenList = s.scan();
+
+	std::string path = "F:\\Eclipse-CPP\\workspace\\Scanner\\src\\samplePasacal.pas";
+	std::cout<<"END";
+	//Parser::tokenList = s.scan(path);
+	t1 = nextToken(tokenList);
+	t2 = nextToken(tokenList);
+
+	std::cout<<t1.code<<" "<<t1.value<<std::endl<<t2.code<<" "<<t2.value<<std::endl;
+}
+
+*/

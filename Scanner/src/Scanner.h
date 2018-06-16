@@ -20,7 +20,7 @@ struct tokenVar {
 class Scanner {
 	public:
 		std::list<tokenVar> scan(std::string path);
-		std::list<tokenVar> scan();
+		//std::list<tokenVar> scan();
 	private:
 		std::list<tokenVar> fileToTokenScan(std::ifstream &source);
 		std::list<tokenVar> ignoreWhitespaces(std::list<tokenVar> &list);
@@ -28,6 +28,7 @@ class Scanner {
 		void scanWhitespaceToken(tokenVar &token, std::ifstream &source);
 		void scanErrorToken(tokenVar &token, std::ifstream &source);
 		void scanUnsignedIntToken(tokenVar &token, std::ifstream &source);
+		void scanSignedIntToken(tokenVar &token, std::ifstream &source);
 		void scanIdentToken(tokenVar &token, std::ifstream &source);
 		void checkForKeywords(tokenVar &token);
 };

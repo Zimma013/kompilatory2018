@@ -105,9 +105,6 @@ void Scanner::checkForKeywords(tokenVar &token) {
 	if (token.value=="return") {
 		token.code="RETURN_T";
 	}
-	if (token.value=="returns") {
-		token.code="RETURNS_T";
-	}
 	if (token.value=="var") {
 		token.code="VAR_T";
 	}
@@ -159,6 +156,17 @@ void Scanner::scanUnsignedIntToken(tokenVar &token, ifstream &source) {
 		}
 		token.value+=ch;
 	}
+}
+
+void Scanner::scanSignedIntToken(tokenVar &token, ifstream &source) {
+	char ch;
+	while(((source.peek()>=48)&&(source.peek()<=57))) { // [0-9]
+			source.get(ch);
+			if(ch==46){ // '.'
+				token.code="SIGNED_REAL_T";
+			}
+			token.value+=ch;
+		}
 }
 
 void Scanner::scanWhitespaceToken(tokenVar &token, ifstream &source) {
@@ -237,7 +245,7 @@ tokenVar Scanner::scanToken(ifstream &source) {
 		t.value+=ch;
 		return t;
 	} else if (ch==46) {
-		t.code="PERIOD_T";
+		t.code="DOT_T";
 		t.value+=ch;
 		if(source.peek()==46){
 			t.code="DOTDOT_T";
@@ -304,10 +312,6 @@ tokenVar Scanner::scanToken(ifstream &source) {
 		t.code="UPARROW_T";
 		t.value+=ch;
 		return t;
-	} else if (ch==95) {
-		t.code="UNDERLINE_T";
-		t.value+=ch;
-		return t;
 	} else if (ch==123) {
 		t.code="LEFT_BRACKET_T";
 		t.value+=ch;
@@ -316,7 +320,7 @@ tokenVar Scanner::scanToken(ifstream &source) {
 		t.code="RIGHT_BRACKET_T";
 		t.value+=ch;
 		return t;
-	} else if (ch=='\t' || ch==0x20 || ch=='\r' || ch=='\n'|| ch=='\u000C'){ //TODO: WHITESPACES
+	} else if (ch=='\t' || ch==0x20 || ch=='\r' || ch=='\n'|| ch=='\u000C' || ch==95){ //TODO: WHITESPACES
 		t.code="WHITESPACE_T";
 		t.value+=ch;
 		scanWhitespaceToken(t,source);
@@ -337,7 +341,9 @@ list<tokenVar> Scanner::ignoreWhitespaces(list<tokenVar> &list) {
 	std::list<tokenVar>::iterator it = list.begin();
 	while(it!=list.end()) {
 		if(it->code!="WHITESPACE_T") {
-			newList.push_back(*it);
+			token.code = it->code;
+			token.value = it->value;
+			newList.push_back(token);
 		}
 		it++;
 	}
@@ -356,7 +362,7 @@ list<tokenVar> Scanner::fileToTokenScan(ifstream &source) {
 	return tokenList;
 }
 
-list<tokenVar> Scanner::scan() {
+/*list<tokenVar> Scanner::scan() {
 	ifstream sourceFile;
 	list<tokenVar> tokenList;
 	string path;
@@ -368,13 +374,14 @@ list<tokenVar> Scanner::scan() {
 	sourceFile.close();
 
 	return tokenList;
-}
+}*/
 
 list<tokenVar> Scanner::scan(string path) {
 	ifstream sourceFile;
 	list<tokenVar> tokenList;
 
-	sourceFile.open(path);
+	sourceFile.open(path.c_str());
+	//std::cout<<"scan filer"<<std::endl;
 	tokenList = fileToTokenScan(sourceFile);
 	sourceFile.close();
 
